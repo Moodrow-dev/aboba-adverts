@@ -11,3 +11,19 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.blur-box.loaded {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.text-container a {
+  color: #0056d2;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.text-container a:hover {
+  color: #003087;
+  text-decoration: underline;
+}
