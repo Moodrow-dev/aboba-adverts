@@ -1,0 +1,35 @@
+.advert-list {
+    margin: 20px 0;
+  }
+  
+  .advert-item {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .advert-title {
+    font-size: 1.2em;
+    color: #1890ff;
+    text-decoration: none;
+  }
+  
+  .advert-meta {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 5px;
+    font-size: 0.9em;
+    color: #666;
+  }
+  
+  .advert-seller {
+    color: #666;
+    text-decoration: none;
+  }
+  
+  .advert-seller:hover {
+    text-decoration: underline;
+  }
+  
+  .advert-time {
+    color: #999;
+  }

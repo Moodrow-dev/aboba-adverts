@@ -26,6 +26,13 @@ func InitDB() (*sql.DB, error) {
 		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 		user_id INTEGER
 	);
+	CREATE TABLE photos (
+		id INTEGER PRIMARY KEY AUTO_INCREMENT,
+		advert_id INTEGER NOT NULL,
+		url VARCHAR(255) NOT NULL,
+		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+		FOREIGN KEY (advert_id) REFERENCES adverts(id) ON DELETE CASCADE
+	);
 	`
 
 	_, err = db.Exec(createTableSQL)
