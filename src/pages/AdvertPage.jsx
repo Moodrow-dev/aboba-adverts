@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Button, Image, Spin, message } from 'antd';
+import { Button, Image, Spin, message, Input } from 'antd';
 import Cookies from 'js-cookie';
 import PageLayout from '../components/PageLayout';
 import MarkdownContent from '../components/MarkdownContent';
@@ -13,6 +13,8 @@ const AdvertPage = ({ logo }) => {
   const [error, setError] = useState(null);
   const [previewImage, setPreviewImage] = useState('');
   const [previewVisible, setPreviewVisible] = useState(false);
+  const [isEditingPrice, setIsEditingPrice] = useState(false);
+  const [newPrice, setNewPrice] = useState('');
 
   // Fetch advert data
   useEffect(() => {
@@ -30,10 +32,8 @@ const AdvertPage = ({ logo }) => {
         }
 
         const data = await response.json();
-        console.log('Advert Data:', data); // Debug log
         setAdvert(data);
-
-        // Add to viewed ads
+        setNewPrice(data.price || '');
         addToViewedAds(data);
       } catch (err) {
         console.error('Ошибка:', err);
@@ -45,6 +45,38 @@ const AdvertPage = ({ logo }) => {
 
     fetchAdvert();
   }, [id, navigate]);
+
+  // Update price function
+  const handlePriceUpdate = async () => {
+    if (!newPrice.trim()) {
+      message.error('Введите новую цену');
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:4242/api/adverts/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...advert,
+          price: newPrice,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Ошибка обновления цены');
+      }
+
+      setAdvert(prev => ({ ...prev, price: newPrice }));
+      message.success('Цена успешно обновлена');
+      setIsEditingPrice(false);
+    } catch (err) {
+      console.error('Ошибка обновления:', err);
+      message.error(err.message);
+    }
+  };
 
   // Delete advert
   const handleDelete = async () => {
@@ -61,22 +93,18 @@ const AdvertPage = ({ logo }) => {
       }
 
       message.success('Объявление успешно удалено');
-      navigate('/'); // Redirect to home page after deletion
+      navigate('/');
     } catch (err) {
       console.error('Ошибка удаления:', err);
       message.error(err.message);
     }
   };
 
-  // Add advert to viewed ads
+  // Add to viewed ads
   const addToViewedAds = (advertData) => {
     try {
       const currentAds = getViewedAds();
-
-      // Remove duplicates
       const filteredAds = currentAds.filter(ad => ad.id !== advertData.id);
-
-      // Add new advert to the start of the list
       const updatedAds = [
         {
           id: advertData.id || 0,
@@ -88,18 +116,18 @@ const AdvertPage = ({ logo }) => {
           image: advertData.images?.[0] || null,
         },
         ...filteredAds,
-      ].slice(0, 10); // Limit to 10 items
+      ].slice(0, 10);
 
       Cookies.set('viewed_ads', JSON.stringify(updatedAds), {
-        expires: 30, // Store for 30 days
+        expires: 30,
         path: '/',
-      });
+      })
     } catch (e) {
       console.error('Ошибка сохранения истории просмотров:', e);
     }
   };
 
-  // Get viewed ads from cookies
+  // Get viewed ads
   const getViewedAds = () => {
     try {
       const viewedAds = Cookies.get('viewed_ads');
@@ -196,7 +224,7 @@ const AdvertPage = ({ logo }) => {
               style={{ display: 'none' }}
           />
 
-          {/* Seller info */}
+          {/* Seller info with price editing */}
           <div style={{
             backgroundColor: '#f5f5f5',
             padding: '15px',
@@ -209,7 +237,31 @@ const AdvertPage = ({ logo }) => {
             </Link>
             </h3>
             <h3 style={{ marginBottom: '10px' }}>Категория: {advert.category || 'Без категории'}</h3>
-            <h3 style={{ marginBottom: '0' }}>Цена: {advert.price || '0'}</h3>
+            <h3 style={{ marginBottom: '0', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              Цена:
+              {isEditingPrice ? (
+                  <>
+                    <Input
+                        value={newPrice}
+                        onChange={(e) => setNewPrice(e.target.value)}
+                        style={{ width: '150px' }}
+                    />
+                    <Button type="primary" onClick={handlePriceUpdate}>Сохранить</Button>
+                    <Button onClick={() => setIsEditingPrice(false)}>Отмена</Button>
+                  </>
+              ) : (
+                  <>
+                    {advert.price || '0'}
+                    <Button
+                        type="link"
+                        onClick={() => setIsEditingPrice(true)}
+                        style={{ padding: '0 5px' }}
+                    >
+                      Изменить
+                    </Button>
+                  </>
+              )}
+            </h3>
           </div>
 
           {/* Action buttons */}

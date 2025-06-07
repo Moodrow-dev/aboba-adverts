@@ -4,7 +4,6 @@ import (
 	"time"
 )
 
-// Advert представляет структуру объявления
 type Advert struct {
 	ID          int       `json:"id"`
 	Title       string    `json:"title"`
@@ -16,7 +15,6 @@ type Advert struct {
 	Photos      []Photo   `json:"photos,omitempty"`
 }
 
-// AdvertRequest представляет запрос на создание/обновление объявления
 type AdvertRequest struct {
 	Title       string `json:"title"`
 	Description string `json:"description"`
@@ -24,9 +22,14 @@ type AdvertRequest struct {
 	Category    string `json:"category"`
 }
 
-// Photo представляет фотографию объявления
 type Photo struct {
 	ID       int    `json:"id"`
 	AdvertID int    `json:"advert_id"`
 	URL      string `json:"url"`
+}
+
+type User struct {
+	ID       int    `json:"id"`
+	Username string `json:"username"`
+	Password string `json:"-"`
 }
